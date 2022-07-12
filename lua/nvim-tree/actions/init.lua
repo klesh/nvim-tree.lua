@@ -232,6 +232,11 @@ local DEFAULT_MAPPINGS = {
     action = "toggle_mark",
     desc = "Toggle node in bookmarks",
   },
+  {
+    key = "bmv",
+    action = "bulk_rename",
+    desc = "Move all bookmarked nodes into specified location",
+  },
 }
 -- END_DEFAULT_MAPPINGS
 

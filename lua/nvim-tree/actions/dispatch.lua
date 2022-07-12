@@ -46,6 +46,7 @@ local Actions = {
   toggle_file_info = require("nvim-tree.actions.node.file-popup").toggle_file_info,
   system_open = require("nvim-tree.actions.node.system-open").fn,
   toggle_mark = require("nvim-tree.marks").toggle_mark,
+  bulk_rename = require("nvim-tree.marks.bulk-rename").bulk_rename,
 }
 
 local function handle_action_on_help_ui(action)

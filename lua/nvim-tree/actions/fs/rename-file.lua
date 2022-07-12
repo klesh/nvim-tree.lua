@@ -7,6 +7,22 @@ local events = require "nvim-tree.events"
 
 local M = {}
 
+function M.rename(node, to)
+  if utils.file_exists(to) then
+    utils.warn "Cannot rename: file already exists"
+    return
+  end
+
+  local success = uv.fs_rename(node.absolute_path, to)
+  if not success then
+    return a.nvim_err_writeln("Could not rename " .. node.absolute_path .. " to " .. to)
+  end
+  utils.clear_prompt()
+  a.nvim_out_write(node.absolute_path .. " ➜ " .. to .. "\n")
+  utils.rename_loaded_buffers(node.absolute_path, to)
+  events._dispatch_node_renamed(node.absolute_path, to)
+end
+
 function M.fn(with_sub)
   return function(node)
     node = lib.get_last_group_node(node)
@@ -24,19 +40,7 @@ function M.fn(with_sub)
         return
       end
 
-      if utils.file_exists(new_file_path) then
-        utils.warn "Cannot rename: file already exists"
-        return
-      end
-
-      local success = uv.fs_rename(node.absolute_path, new_file_path)
-      if not success then
-        return a.nvim_err_writeln("Could not rename " .. node.absolute_path .. " to " .. new_file_path)
-      end
-      utils.clear_prompt()
-      a.nvim_out_write(node.absolute_path .. " ➜ " .. new_file_path .. "\n")
-      utils.rename_loaded_buffers(node.absolute_path, new_file_path)
-      events._dispatch_node_renamed(abs_path, new_file_path)
+      M.rename(node, new_file_path)
       if M.enable_reload then
         require("nvim-tree.actions.reloaders.reloaders").reload_explorer()
       end
