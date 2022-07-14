@@ -269,6 +269,7 @@ function M.apply_mappings(bufnr)
   end
 end
 
+-- @deprecated
 local function merge_mappings(user_mappings)
   if #user_mappings == 0 then
     return M.mappings
@@ -327,6 +328,7 @@ local function merge_mappings(user_mappings)
   return vim.fn.extend(default_map, user_map)
 end
 
+-- @deprecated
 local function copy_mappings(user_mappings)
   if #user_mappings == 0 then
     return M.mappings
@@ -356,9 +358,44 @@ local function cleanup_existing_mappings()
 end
 
 local DEFAULT_MAPPING_CONFIG = {
+  -- @deprecated
   custom_only = false,
+  -- @deprecated
   list = {},
 }
+
+local function remove_keymaps(keys_to_disable)
+  if keys_to_disable == true then
+    M.mappings = {}
+    return
+  end
+
+  if type(keys_to_disable) == "table" and #keys_to_disable > 0 then
+    local new_map = {}
+    for _, m in pairs(M.mappings) do
+      local keys = type(m.key) == "table" and m.key or { m.key }
+      local reminding_keys = {}
+      for _, key in pairs(keys) do
+        local found = false
+        for _, key_to_disable in pairs(keys_to_disable) do
+          if key_to_disable == key then
+            found = true
+            break
+          end
+        end
+        if not found then
+          table.insert(reminding_keys, key)
+        end
+      end
+      if #reminding_keys > 0 then
+        local map = vim.deepcopy(m)
+        map.key = reminding_keys
+        table.insert(new_map, map)
+      end
+    end
+    M.mappings = new_map
+  end
+end
 
 function M.setup(opts)
   require("nvim-tree.actions.fs.trash").setup(opts)
@@ -373,15 +410,22 @@ function M.setup(opts)
 
   cleanup_existing_mappings()
   M.mappings = vim.deepcopy(DEFAULT_MAPPINGS)
+  remove_keymaps(opts.remove_keymaps)
 
+  -- @deprecated
   local user_map_config = (opts.view or {}).mappings or {}
+  -- @deprecated
   local options = vim.tbl_deep_extend("force", DEFAULT_MAPPING_CONFIG, user_map_config)
+  -- @deprecated
   if options.custom_only then
+    -- @deprecated
     M.mappings = copy_mappings(options.list)
   else
+    -- @deprecated
     M.mappings = merge_mappings(options.list)
   end
 
+  -- @deprecated
   require("nvim-tree.actions.dispatch").setup(M.custom_keypress_funcs)
 
   log.line("config", "active mappings")

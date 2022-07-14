@@ -93,6 +93,7 @@ local function create_buffer(bufnr)
   end
 
   require("nvim-tree.actions").apply_mappings(M.get_bufnr())
+  M.on_attach(M.get_bufnr())
 end
 
 local function get_size()
@@ -425,6 +426,7 @@ function M.setup(opts)
   M.View.winopts.number = options.number
   M.View.winopts.relativenumber = options.relativenumber
   M.View.winopts.signcolumn = options.signcolumn
+  M.on_attach = opts.on_attach
 end
 
 return M

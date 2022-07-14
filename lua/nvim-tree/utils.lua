@@ -335,4 +335,10 @@ function M.focus_file(path)
   require("nvim-tree.view").set_cursor { i + 1, 1 }
 end
 
+function M.inject_node(f)
+  return function()
+    f(require("nvim-tree.lib").get_node_at_cursor())
+  end
+end
+
 return M
